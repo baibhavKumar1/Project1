@@ -85,6 +85,8 @@ const resolvers = {
         throw new Error(error.message);
       }
     },
+
+    //Endpoint only accessible for admin
     addBook: async (_, { title, author, genre, ISBN }, req) => {
       try {
         console.log(req.user, title);
@@ -101,6 +103,7 @@ const resolvers = {
         throw new Error(error.message)
       }
     },
+    //Endpoint only accessible for admin
     updateBook: async (_, { ...args }, req) => {
       try {
         const exists = await BookModel.findById(args.id);
@@ -116,6 +119,7 @@ const resolvers = {
         throw new Error(error.message)
       }
     },
+    //Endpoint only accessible for admin
     deleteBook: async (_, { id }, req) => {
       try {
         const exists = await BookModel.findById(id);
