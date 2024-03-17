@@ -5,19 +5,40 @@ const bcrypt = require('bcrypt')
 const { signToken } = require('../Middleware/auth.middleware')
 const RequestModel = require("../Model/request.model");
 const BuyModel = require("../Model/buy.model");
+const { client } = require("../redis");
+
 const resolvers = {
   Query: {
     getBook: async (_, { id }) => {
       return await BookModel.findById(id);
     },
     getAllBooks: async () => {
-      return await BookModel.find();
+      const cachedBooks = await client.get("books");
+    
+      if (cachedBooks) {
+        console.log("Books retrieved from cache");
+        return JSON.parse(cachedBooks);
+      } else {
+        const newBooks = await BookModel.find();
+        await client.set("books", JSON.stringify(newBooks));
+        console.log("Books saved to cache");
+        return newBooks;
+      }
     },
     getUser: async (_, __, req) => {
       return await UserModel.findById(req.user._id);
     },
     getAllUsers: async () => {
-      return await UserModel.find();
+      const cachedUsers = await client.get("users");
+      if (cachedUsers) {
+        console.log("Users retrieved from cache");
+        return JSON.parse(cachedUsers);
+      } else {
+        const newUsers = await UserModel.find();
+        await client.set("users", JSON.stringify(newUsers));
+        console.log("Users saved to cache");
+        return newUsers;
+      }
     },
     getBorrow: async (_, { id }) => {
       return await BorrowModel.findById(id);

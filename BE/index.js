@@ -5,6 +5,7 @@ const connection = require('./db.js');
 const { auth } = require('./Middleware/auth.middleware.js');
 const typeDefs = require('./schema/typeDef.js');
 const resolvers = require('./schema/resolvers.js');
+const { client } = require('./redis.js');
 require("dotenv").config()
 
 const PORT = process.env.PORT || 3000;
@@ -24,9 +25,9 @@ app.use(express.json());
 const startApolloServer = async () => {
   await server.start();
   server.applyMiddleware({ app });
-
+  await client.connect()
   app.listen(PORT, async () => {
-    try {
+    try { 
       await connection;
       console.log('connected');
     } catch (err) {
